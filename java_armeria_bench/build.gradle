@@ -1,0 +1,56 @@
+plugins {
+    id("java")
+    id("application")
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.google.protobuf") version "0.8.15"
+}
+
+version = "0.1"
+group = "com.example"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform(group: 'com.linecorp.armeria', name: 'armeria-bom', version: '1.11.0')
+
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+
+    ['armeria',
+     'armeria-grpc',
+    ].each {
+        implementation "com.linecorp.armeria:${it}"
+    }
+
+    runtimeOnly("ch.qos.logback:logback-classic:1.2.5")
+}
+
+
+application {
+    mainClass.set("helloworld.Application")
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("16")
+    targetCompatibility = JavaVersion.toVersion("16")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs("build/generated/source/proto/main/grpc")
+            srcDirs("build/generated/source/proto/main/java")
+        }
+    }
+}
+
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:3.14.0" }
+    plugins {
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:1.33.1" }
+    }
+    generateProtoTasks {
+        all()*.plugins { grpc {} }
+    }
+}
